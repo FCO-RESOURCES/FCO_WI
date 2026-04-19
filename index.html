@@ -8,42 +8,33 @@
         :root { --orange: #ff8c00; --bg: #0c0808; --card: #151010; --text: #ffaa32; --border: #333; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', monospace; margin: 0; display: flex; height: 100vh; flex-direction: row; }
-        
         #login-overlay { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; padding: 20px; border: 4px solid var(--orange); }
         .login-box { text-align: center; width: 100%; max-width: 400px; padding: 30px; background: var(--card); }
-        
         .sidebar { width: 280px; border-right: 2px solid var(--orange); background: #050303; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; }
         .sidebar h2 { font-size: 1.2rem; margin-bottom: 20px; letter-spacing: 2px; text-align: center; border-bottom: 1px solid var(--orange); padding-bottom: 15px; color: var(--orange); }
         .nav-btn { background: transparent; color: var(--text); border: 1px solid var(--border); padding: 15px; margin-bottom: 10px; cursor: pointer; text-align: left; transition: 0.2s; font-family: monospace; font-weight: bold; }
         .nav-btn:hover, .nav-btn.active { background: var(--orange); color: #000; border-color: var(--orange); }
-        
         .main { flex: 1; padding: 30px; overflow-y: auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .card { background: var(--card); border-left: 5px solid var(--orange); padding: 20px; margin-bottom: 25px; }
         h1 { color: var(--orange); margin-top: 0; font-size: 1.6rem; text-transform: uppercase; }
-        
-        input, textarea, select { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 15px; font-family: monospace; outline: none; margin-bottom: 15px; font-size: 16px; }
+        input, textarea, select { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; font-family: monospace; outline: none; margin-bottom: 15px; font-size: 16px; }
         textarea { resize: vertical; min-height: 150px; }
-        
         .action-btn { background: var(--orange); color: #000; border: none; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; font-size: 14px; margin-bottom: 10px; }
         .danger-btn { background: #ff3200; color: #fff; }
         .restart-btn { background: #444; color: #fff; }
-        
         .row { display: flex; gap: 10px; }
         .log-entry { background: #000; padding: 12px; border: 1px solid #222; font-size: 13px; margin-bottom: 8px; }
         .log-user { color: var(--orange); font-weight: bold; }
         .log-cmd { color: #00ff00; word-break: break-all; }
-        
         .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #333; transition: .4s; }
         .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
         input:checked + .slider { background-color: var(--orange); }
         input:checked + .slider:before { transform: translateX(26px); }
-
         @media (max-width: 850px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; border-right: none; border-bottom: 2px solid var(--orange); padding: 10px; height: auto; }
@@ -55,16 +46,13 @@
     </style>
 </head>
 <body>
-
     <div id="login-overlay">
         <div class="login-box">
             <h1>SYSTEM ACCESS</h1>
-            <p style="font-size: 12px; margin-bottom: 20px;">KEY AUTHORIZATION REQUIRED</p>
             <input type="password" id="pass-input" placeholder="ENTER ACCESS KEY...">
             <button class="action-btn" onclick="attemptLogin()">AUTHORIZE</button>
         </div>
     </div>
-
     <div class="sidebar">
         <h2>FCO COMMAND</h2>
         <div class="nav-container">
@@ -74,34 +62,26 @@
             <button class="nav-btn" onclick="openTab(event, 'editor')">CHANGELOG</button>
         </div>
     </div>
-
     <div class="main">
         <div id="dashboard" class="tab-content active">
             <h1>> SERVER CONTROLS</h1>
             <div class="card">
                 <h3>Global Announcement</h3>
-                <input type="text" id="announce-msg" placeholder="Message to display in all servers...">
+                <input type="text" id="announce-msg" placeholder="Message to display...">
                 <button class="action-btn" onclick="sendAction('announce')">Broadcast Message</button>
             </div>
             <div class="card row" style="align-items: center;">
-                <div style="flex: 1;">
-                    <h3>Maintenance Mode</h3>
-                    <p style="font-size: 12px; color: #888;">Lock game to Admins only.</p>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="maintenance-toggle" onchange="toggleMaintenance()">
-                    <span class="slider"></span>
-                </label>
+                <div style="flex: 1;"><h3>Maintenance Mode</h3><p style="font-size: 12px; color: #888;">Lock game to Admins.</p></div>
+                <label class="switch"><input type="checkbox" id="maintenance-toggle" onchange="toggleMaintenance()"><span class="slider"></span></label>
             </div>
             <div class="card">
-                <h3>Emergency Actions</h3>
+                <h3>Power Controls</h3>
                 <div class="row">
                     <button class="action-btn danger-btn" onclick="sendAction('shutdown')">Emergency Shutdown</button>
                     <button class="action-btn restart-btn" onclick="sendAction('restart')">Global Restart</button>
                 </div>
             </div>
         </div>
-
         <div id="mod" class="tab-content">
             <h1>> MODERATION HUB</h1>
             <div class="card">
@@ -109,35 +89,27 @@
                 <div class="row">
                     <input type="text" id="target-user" placeholder="Username">
                     <select id="target-action" style="max-width: 150px;">
-                        <option value="kick">Kick</option>
-                        <option value="ban">Global Ban</option>
-                        <option value="unban">Unban</option>
+                        <option value="kick">Kick</option><option value="ban">Global Ban</option><option value="unban">Unban</option>
                     </select>
                 </div>
                 <input type="text" id="target-reason" placeholder="Reason...">
                 <button class="action-btn" onclick="executeModAction()">Execute Action</button>
             </div>
-            <div class="card">
-                <h3>Current Bans</h3>
-                <div id="ban-list" style="font-size: 14px; background: #000; padding: 10px;"></div>
-            </div>
+            <div class="card"><h3>Active Bans</h3><div id="ban-list" style="font-size: 14px; background: #000; padding: 10px;"></div></div>
         </div>
-
         <div id="logs" class="tab-content">
             <h1>> AUDIT LOGS</h1>
             <input type="text" id="search-log" placeholder="Search logs..." onkeyup="filterLogs()">
             <div class="card" id="log-list">Loading...</div>
         </div>
-
         <div id="editor" class="tab-content">
             <h1>> CHANGELOG</h1>
             <div class="card">
-                <textarea id="changelog-input" placeholder="System updates..."></textarea>
+                <textarea id="changelog-input" placeholder="Version updates..."></textarea>
                 <button class="action-btn" onclick="saveData('changelog', document.getElementById('changelog-input').value)">Save Changelog</button>
             </div>
         </div>
     </div>
-
     <script>
         const API = "https://twilight-bush-9ecb.luku-di456.workers.dev";
         let PASS = "";
@@ -155,18 +127,13 @@
                 if (res.status === 403) return false;
                 const data = await res.json();
                 sysData = data;
-                
                 document.getElementById('log-list').innerHTML = data.logs.map(log => `
-                    <div class="log-entry">
-                        <span style="color:#888">[${new Date(log.time).toLocaleTimeString()}]</span>
-                        <span class="log-user">${log.user}</span>: <span class="log-cmd">${log.cmd}</span>
-                    </div>
+                    <div class="log-entry"><span style="color:#888">[${new Date(log.time).toLocaleTimeString()}]</span>
+                    <span class="log-user">${log.user}</span>: <span class="log-cmd">${log.cmd}</span></div>
                 `).join('') || "No logs.";
-
                 let banHtml = "";
                 for(let user in data.bans) banHtml += `<div style="border-bottom:1px solid #333; padding:5px;"><b>${user}</b>: ${data.bans[user]}</div>`;
                 document.getElementById('ban-list').innerHTML = banHtml || "No bans.";
-
                 document.getElementById('maintenance-toggle').checked = data.settings.maintenance;
                 document.getElementById('changelog-input').value = data.changelog;
                 return true;
@@ -175,53 +142,35 @@
 
         async function saveData(type, value) {
             const res = await fetch(`${API}/admin-action`, {
-                method: "POST",
-                headers: { "Authorization": PASS, "Content-Type": "application/json" },
+                method: "POST", headers: { "Authorization": PASS, "Content-Type": "application/json" },
                 body: JSON.stringify({ type, value })
             });
-            if (res.ok) { alert("COMMAND SENT SUCCESSFULLY"); refreshData(); }
-            else { alert("ERROR SENDING COMMAND"); }
+            if (res.ok) { alert("SUCCESS"); refreshData(); }
         }
 
         async function sendAction(act) {
-            let reason = act === "announce" ? document.getElementById('announce-msg').value : "Triggered via Admin Panel";
-            if(act === "announce" && !reason) return alert("Please enter an announcement message.");
-            
+            let reason = act === "announce" ? document.getElementById('announce-msg').value : "Panel Command";
+            if(act === "announce" && !reason) return alert("Enter message");
             await saveData("trigger", { type: act, reason: reason });
-            if(act === "announce") document.getElementById('announce-msg').value = "";
         }
 
         async function executeModAction() {
             let user = document.getElementById('target-user').value.trim();
             let action = document.getElementById('target-action').value;
-            let reason = document.getElementById('target-reason').value || "No reason provided.";
-            if(!user) return alert("Enter a username.");
-
-            if(action === "ban") {
-                sysData.bans[user] = reason;
-                await saveData("bans", sysData.bans);
-                await saveData("trigger", { type: "kick", target: user, reason: "Global Banned: " + reason });
-            } else if(action === "unban") {
-                delete sysData.bans[user];
-                await saveData("bans", sysData.bans);
-            } else {
-                await saveData("trigger", { type: "kick", target: user, reason: reason });
-            }
+            let reason = document.getElementById('target-reason').value || "No reason.";
+            if(!user) return;
+            if(action === "ban") { sysData.bans[user] = reason; await saveData("bans", sysData.bans); await saveData("trigger", { type: "kick", target: user, reason: "Banned: " + reason }); }
+            else if(action === "unban") { delete sysData.bans[user]; await saveData("bans", sysData.bans); }
+            else { await saveData("trigger", { type: "kick", target: user, reason: reason }); }
             document.getElementById('target-user').value = "";
-            document.getElementById('target-reason').value = "";
         }
 
-        function toggleMaintenance() {
-            sysData.settings.maintenance = document.getElementById('maintenance-toggle').checked;
-            saveData("settings", sysData.settings);
-        }
-
+        function toggleMaintenance() { sysData.settings.maintenance = document.getElementById('maintenance-toggle').checked; saveData("settings", sysData.settings); }
         function filterLogs() {
             let filter = document.getElementById('search-log').value.toUpperCase();
             let entries = document.getElementsByClassName('log-entry');
             for (let i = 0; i < entries.length; i++) entries[i].style.display = entries[i].innerText.toUpperCase().indexOf(filter) > -1 ? "" : "none";
         }
-
         function openTab(evt, tabName) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove("active"));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove("active"));
@@ -229,7 +178,6 @@
             evt.currentTarget.classList.add("active");
             refreshData();
         }
-
         setInterval(() => { if (PASS !== "") refreshData(); }, 15000);
     </script>
 </body>
