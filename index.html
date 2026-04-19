@@ -25,11 +25,12 @@
         .card { background: var(--card); border-left: 5px solid var(--orange); padding: 20px; margin-bottom: 25px; }
         h1 { color: var(--orange); margin-top: 0; font-size: 1.6rem; text-transform: uppercase; }
         
-        input, textarea, select { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; font-family: monospace; outline: none; margin-bottom: 15px; font-size: 16px; }
+        input, textarea, select { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 15px; font-family: monospace; outline: none; margin-bottom: 15px; font-size: 16px; }
         textarea { resize: vertical; min-height: 150px; }
         
         .action-btn { background: var(--orange); color: #000; border: none; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; font-size: 14px; margin-bottom: 10px; }
         .danger-btn { background: #ff3200; color: #fff; }
+        .restart-btn { background: #444; color: #fff; }
         
         .row { display: flex; gap: 10px; }
         .log-entry { background: #000; padding: 12px; border: 1px solid #222; font-size: 13px; margin-bottom: 8px; }
@@ -94,7 +95,10 @@
             </div>
             <div class="card">
                 <h3>Emergency Actions</h3>
-                <button class="action-btn danger-btn" onclick="sendAction('shutdown')">Emergency Shutdown</button>
+                <div class="row">
+                    <button class="action-btn danger-btn" onclick="sendAction('shutdown')">Emergency Shutdown</button>
+                    <button class="action-btn restart-btn" onclick="sendAction('restart')">Global Restart</button>
+                </div>
             </div>
         </div>
 
@@ -175,26 +179,28 @@
                 headers: { "Authorization": PASS, "Content-Type": "application/json" },
                 body: JSON.stringify({ type, value })
             });
-            if (res.ok) { alert("DATA SAVED"); refreshData(); }
+            if (res.ok) { alert("COMMAND SENT SUCCESSFULLY"); refreshData(); }
+            else { alert("ERROR SENDING COMMAND"); }
         }
 
         async function sendAction(act) {
-            let reason = act === "announce" ? document.getElementById('announce-msg').value : "Panel Command";
-            if(act === "announce" && !reason) return alert("Enter message");
+            let reason = act === "announce" ? document.getElementById('announce-msg').value : "Triggered via Admin Panel";
+            if(act === "announce" && !reason) return alert("Please enter an announcement message.");
+            
             await saveData("trigger", { type: act, reason: reason });
-            document.getElementById('announce-msg').value = "";
+            if(act === "announce") document.getElementById('announce-msg').value = "";
         }
 
         async function executeModAction() {
             let user = document.getElementById('target-user').value.trim();
             let action = document.getElementById('target-action').value;
-            let reason = document.getElementById('target-reason').value || "No reason.";
-            if(!user) return;
+            let reason = document.getElementById('target-reason').value || "No reason provided.";
+            if(!user) return alert("Enter a username.");
 
             if(action === "ban") {
                 sysData.bans[user] = reason;
                 await saveData("bans", sysData.bans);
-                await saveData("trigger", { type: "kick", target: user, reason: "Banned: " + reason });
+                await saveData("trigger", { type: "kick", target: user, reason: "Global Banned: " + reason });
             } else if(action === "unban") {
                 delete sysData.bans[user];
                 await saveData("bans", sysData.bans);
@@ -202,6 +208,7 @@
                 await saveData("trigger", { type: "kick", target: user, reason: reason });
             }
             document.getElementById('target-user').value = "";
+            document.getElementById('target-reason').value = "";
         }
 
         function toggleMaintenance() {
