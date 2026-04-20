@@ -49,6 +49,7 @@
     <div id="login-overlay">
         <div class="login-box">
             <h1>SYSTEM ACCESS</h1>
+            <p style="font-size: 12px; margin-bottom: 20px;">KEY AUTHORIZATION REQUIRED</p>
             <input type="password" id="pass-input" placeholder="ENTER ACCESS KEY...">
             <button class="action-btn" onclick="attemptLogin()">AUTHORIZE</button>
         </div>
@@ -145,13 +146,17 @@
                 method: "POST", headers: { "Authorization": PASS, "Content-Type": "application/json" },
                 body: JSON.stringify({ type, value })
             });
-            if (res.ok) { alert("SUCCESS"); refreshData(); }
+            if (res.ok) { 
+                if(type !== "trigger") alert("SUCCESS"); 
+                refreshData(); 
+            }
         }
 
         async function sendAction(act) {
             let reason = act === "announce" ? document.getElementById('announce-msg').value : "Panel Command";
             if(act === "announce" && !reason) return alert("Enter message");
             await saveData("trigger", { type: act, reason: reason });
+            alert(act.toUpperCase() + " COMMAND SENT TO ALL SERVERS.");
         }
 
         async function executeModAction() {
@@ -159,9 +164,9 @@
             let action = document.getElementById('target-action').value;
             let reason = document.getElementById('target-reason').value || "No reason.";
             if(!user) return;
-            if(action === "ban") { sysData.bans[user] = reason; await saveData("bans", sysData.bans); await saveData("trigger", { type: "kick", target: user, reason: "Banned: " + reason }); }
-            else if(action === "unban") { delete sysData.bans[user]; await saveData("bans", sysData.bans); }
-            else { await saveData("trigger", { type: "kick", target: user, reason: reason }); }
+            if(action === "ban") { sysData.bans[user] = reason; await saveData("bans", sysData.bans); await saveData("trigger", { type: "kick", target: user, reason: "Banned: " + reason }); alert("PLAYER BANNED"); }
+            else if(action === "unban") { delete sysData.bans[user]; await saveData("bans", sysData.bans); alert("PLAYER UNBANNED"); }
+            else { await saveData("trigger", { type: "kick", target: user, reason: reason }); alert("KICK SENT"); }
             document.getElementById('target-user').value = "";
         }
 
