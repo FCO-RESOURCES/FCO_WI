@@ -21,7 +21,7 @@
         .card { background: var(--card); border-left: 5px solid var(--orange); padding: 20px; margin-bottom: 25px; }
         h1 { color: var(--orange); margin-top: 0; font-size: 1.6rem; text-transform: uppercase; }
         input, textarea, select { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 15px; font-family: monospace; outline: none; margin-bottom: 15px; font-size: 16px; }
-        textarea { resize: vertical; min-height: 150px; }
+        textarea { resize: vertical; min-height: 100px; }
         .action-btn { background: var(--orange); color: #000; border: none; padding: 15px 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; width: 100%; font-size: 14px; margin-bottom: 10px; }
         .danger-btn { background: #ff3200; color: #fff; }
         .restart-btn { background: #444; color: #fff; }
@@ -49,7 +49,6 @@
     <div id="login-overlay">
         <div class="login-box">
             <h1>SYSTEM ACCESS</h1>
-            <p style="font-size: 12px; margin-bottom: 20px;">KEY AUTHORIZATION REQUIRED</p>
             <input type="password" id="pass-input" placeholder="ENTER ACCESS KEY...">
             <button class="action-btn" onclick="attemptLogin()">AUTHORIZE</button>
         </div>
@@ -104,10 +103,16 @@
             <div class="card" id="log-list">Loading...</div>
         </div>
         <div id="editor" class="tab-content">
-            <h1>> CHANGELOG</h1>
+            <h1>> VERSION DEPLOYMENT</h1>
             <div class="card">
-                <textarea id="changelog-input" placeholder="Version updates..."></textarea>
-                <button class="action-btn" onclick="saveData('changelog', document.getElementById('changelog-input').value)">Save Changelog</button>
+                <h3>Publish New Update</h3>
+                <input type="text" id="cl-version" placeholder="Version Number (e.g. v1.2.0)">
+                <textarea id="cl-msg" placeholder="Update notes..."></textarea>
+                <button class="action-btn" onclick="postChangelog()">Publish Update</button>
+            </div>
+            <div class="card">
+                <h3>Deployment History</h3>
+                <div id="cl-history" style="max-height: 400px; overflow-y: auto; padding-right: 10px;"></div>
             </div>
         </div>
     </div>
@@ -128,15 +133,26 @@
                 if (res.status === 403) return false;
                 const data = await res.json();
                 sysData = data;
+                
                 document.getElementById('log-list').innerHTML = data.logs.map(log => `
                     <div class="log-entry"><span style="color:#888">[${new Date(log.time).toLocaleTimeString()}]</span>
                     <span class="log-user">${log.user}</span>: <span class="log-cmd">${log.cmd}</span></div>
                 `).join('') || "No logs.";
+                
                 let banHtml = "";
                 for(let user in data.bans) banHtml += `<div style="border-bottom:1px solid #333; padding:5px;"><b>${user}</b>: ${data.bans[user]}</div>`;
                 document.getElementById('ban-list').innerHTML = banHtml || "No bans.";
+                
                 document.getElementById('maintenance-toggle').checked = data.settings.maintenance;
-                document.getElementById('changelog-input').value = data.changelog;
+                
+                // Render Changelog History
+                document.getElementById('cl-history').innerHTML = data.changelogs.map(cl => `
+                    <div style="border-left: 3px solid #ff8c00; padding: 10px; background: #000; margin-bottom: 10px;">
+                        <b style="color: #ff8c00;">${cl.version}</b> <span style="color: #888; font-size: 12px;">(${new Date(cl.time).toLocaleDateString()})</span>
+                        <p style="margin: 5px 0 0 0; font-size: 14px;">${cl.message}</p>
+                    </div>
+                `).join('') || "No updates published yet.";
+
                 return true;
             } catch (err) { return false; }
         }
@@ -146,17 +162,24 @@
                 method: "POST", headers: { "Authorization": PASS, "Content-Type": "application/json" },
                 body: JSON.stringify({ type, value })
             });
-            if (res.ok) { 
-                if(type !== "trigger") alert("SUCCESS"); 
-                refreshData(); 
-            }
+            if (res.ok) { refreshData(); }
+        }
+
+        async function postChangelog() {
+            const ver = document.getElementById('cl-version').value.trim();
+            const msg = document.getElementById('cl-msg').value.trim();
+            if(!ver || !msg) return alert("Please enter a version and a message.");
+            await saveData("add_changelog", { version: ver, message: msg });
+            document.getElementById('cl-version').value = "";
+            document.getElementById('cl-msg').value = "";
+            alert("UPDATE DEPLOYED SUCCESSFULLY");
         }
 
         async function sendAction(act) {
             let reason = act === "announce" ? document.getElementById('announce-msg').value : "Panel Command";
             if(act === "announce" && !reason) return alert("Enter message");
             await saveData("trigger", { type: act, reason: reason });
-            alert(act.toUpperCase() + " COMMAND SENT TO ALL SERVERS.");
+            alert("COMMAND SENT TO SERVERS");
         }
 
         async function executeModAction() {
